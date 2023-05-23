@@ -5,17 +5,32 @@
 
 GtkBuilder *builder;
 GtkWidget *window;
+GtkStack *stack;
 
 void on_main_window_destroy(GtkWidget *widget, gpointer data){
     gtk_main_quit();
 }
 
+void mensagem(char text[100], char secondary_text[100], char icon_name[100]){
+
+    GtkMessageDialog *mensagem_dialogo = gtk_builder_get_object(builder, "mensagem");
+
+    g_object_set(mensagem_dialogo, "text", text, NULL);
+    g_object_set(mensagem_dialogo, "secondary_text", secondary_text, NULL);
+    g_object_set(mensagem_dialogo, "icon_name", icon_name, NULL);
+
+    gtk_widget_show_all(mensagem_dialogo);
+    gtk_dialog_run     (mensagem_dialogo);
+    gtk_widget_hide    (mensagem_dialogo);
+}
+
 void login(char *email, char *senha, bool *lembrar){
-    if((strcmp(email, "Arthur") == 0) && (strcmp(senha, "1234") == 0)){
-        g_print("Usuario logado");
+    if((strcmp(email, "admin") == 0) && (strcmp(senha, "admin") == 0)){
+        mensagem("Bem vindo", "Usuario logado com sucesso!", "emblem-default");
+        gtk_stack_set_visible_child_name(stack, "view_inicial");
     }
     else{
-        g_print("Email ou senha incorretos");
+        mensagem("Aviso", "Senha ou email incorretos!", "dialog-error");
     }
 }
 
@@ -23,16 +38,16 @@ void on_botao_login_clicked(GtkWidget *widget, gpointer data){
     char *email = gtk_entry_get_text(gtk_builder_get_object(builder, "email"));
     char *senha = gtk_entry_get_text(gtk_builder_get_object(builder, "senha"));
     bool *lembrar = gtk_toggle_button_get_active(gtk_builder_get_object(builder, "lembrar"));
-    g_print("%d", *lembrar);
+    login(email, senha, lembrar);
 
 }
 
 void on_botao_cadastrar_inicial_clicked(GtkWidget *widget, gpointer data){
-    gtk_main_quit();
+    gtk_stack_set_visible_child_name(stack, "view_cadastro");
 }
 
 void on_botao_listar_inicial_clicked(GtkWidget *widget, gpointer data){
-    gtk_main_quit();
+    gtk_stack_set_visible_child_name(stack, "view_listar");
 }
 
 void on_botao_sair_inicial_clicked(GtkWidget *widget, gpointer data){
@@ -40,7 +55,7 @@ void on_botao_sair_inicial_clicked(GtkWidget *widget, gpointer data){
 }
 
 void on_botao_cad_voltar_clicked(GtkWidget *widget, gpointer data){
-    gtk_main_quit();
+    gtk_stack_set_visible_child_name(stack, "view_inicial");
 }
 
 void on_botao_cadastrar_clicked(GtkWidget *widget, gpointer data){
@@ -48,7 +63,7 @@ void on_botao_cadastrar_clicked(GtkWidget *widget, gpointer data){
 }
 
 void on_botao_listar_voltar_clicked(GtkWidget *widget, gpointer data){
-    gtk_main_quit();
+    gtk_stack_set_visible_child_name(stack, "view_inicial");
 }
 
 void on_botao_listar_clicked(GtkWidget *widget, gpointer data){
@@ -78,7 +93,8 @@ int main (int argc, char **argv){
     gtk_builder_connect_signals(builder,NULL);
 
 
-    window = GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
+    stack =     GTK_WIDGET(gtk_builder_get_object(builder, "stack"));
+    window =    GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
 
     gtk_widget_show_all(window);
     gtk_main();
